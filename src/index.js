@@ -1,10 +1,21 @@
 import express from "express";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
-import { loginValidation, postCreateValidation, registerValidation } from "./utils/validations.js";
+import {
+	loginValidation,
+	postCreateValidation,
+	registerValidation,
+} from "./utils/validations.js";
 import { checkAuth } from "./utils/checkAuth.js";
 import { login, getMe, register } from "./controllers/userController.js";
-import { create, getAll, getOne, remove, update } from "./controllers/postController.js";
+import {
+	create,
+	getAll,
+	getOne,
+	remove,
+	update,
+} from "./controllers/postController.js";
+import multer from "multer";
 
 dotenv.config();
 
@@ -21,13 +32,39 @@ const app = express();
 
 const PORT = process.env.PORT || 8000;
 
+const storage = multer.diskStorage({
+	destination: (req, file, cb) => {
+		cb(null, 'src/uploads');
+	},
+	filename: (req, file, cb) => {
+		cb(null, file.originalname);
+	},
+});
+
+const upload = multer({storage});
+
 app.use(express.json());
 
 app.post("/auth/register", registerValidation, register);
 
-app.post("/auth/login", loginValidation , login);
+app.post("/auth/login", loginValidation, login);
 
 app.get("/auth/me", checkAuth, getMe);
+
+app.use("/uploads", express.static("src/uploads"));
+
+app.post("/upload", upload.single('file'), (req, res) => {
+	try {
+		res.json({
+			message: 'File uploaded successfully',
+			file: req.file,
+		});
+	} catch (error) {
+		res.status(500).json({
+			message: 'File upload failed',
+		});
+	}
+});
 
 app.get("/posts", getAll);
 
@@ -35,9 +72,8 @@ app.get("/posts/:id", getOne);
 
 app.post("/posts", checkAuth, postCreateValidation, create);
 
-app.delete("/posts/:id", checkAuth ,remove),
-
-app.patch("/posts/:id", checkAuth, update)
+app.delete("/posts/:id", checkAuth, remove),
+	app.patch("/posts/:id", checkAuth, update);
 
 app.listen(PORT, () => {
 	console.log(`Server running on port ${PORT}`);
