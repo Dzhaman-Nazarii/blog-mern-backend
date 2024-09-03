@@ -79,13 +79,13 @@ app.get("/posts", getAll);
 
 app.get("/posts/:id", getOne);
 
-app.get("/posts/tags", getLastTags);
-
 app.post("/posts", checkAuth, handleValidationsError, postCreateValidation, create);
 
 app.delete("/posts/:id", checkAuth, remove);
 
 app.patch("/posts/:id", checkAuth, handleValidationsError, update);
+
+app.get("/tags", getLastTags);
 
 app.listen(PORT, () => {
 	console.log(`Server running on port ${PORT}`);
