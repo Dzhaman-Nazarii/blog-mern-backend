@@ -12,6 +12,7 @@ import { login, getMe, register } from "./controllers/userController.js";
 import {
 	create,
 	getAll,
+	getLastTags,
 	getOne,
 	remove,
 	update,
@@ -77,6 +78,8 @@ app.post("/upload", upload.single("file"), (req, res) => {
 app.get("/posts", getAll);
 
 app.get("/posts/:id", getOne);
+
+app.get("/posts/tags", getLastTags);
 
 app.post("/posts", checkAuth, handleValidationsError, postCreateValidation, create);
 
